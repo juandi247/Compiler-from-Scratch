@@ -1,5 +1,7 @@
 package lexer
 
+import "unicode"
+
 //error hanlding for EOF
 func (l *lexer) isAtEnd() bool {
 	if l.curr >= len(l.input) {
@@ -43,9 +45,44 @@ func (l *lexer) readNotEqual() {
 }
 
 func (l *lexer) readString() {
+	l.curr++ //so we avoid having that initial stoping becasue curr was the initial "
 	for l.input[l.curr] != '"' {
 		l.curr++
 	}
 
 	l.saveToken(STRING, string(l.input[l.start:(l.curr+1)]))
+}
+
+func (l *lexer) readNumber() {
+	for unicode.IsNumber(rune(l.input[l.curr])) {
+		l.curr++
+	}
+	l.curr--
+	//we let the function save token to advance +1
+	l.saveToken(NUMBER, string(l.input[l.start:l.curr+1]))
+
+}
+
+func (l *lexer) readIdentifier() {
+	for unicode.IsLetter(rune(l.input[l.curr])) || unicode.IsNumber(rune(l.input[l.curr])) {
+		l.curr++
+	}
+
+	word := string(l.input[l.start:l.curr])
+	itemType := checkKeyWord(word)
+
+	l.curr--
+	l.saveToken(itemType, word)
+}
+
+func checkKeyWord(word string) item {
+
+	itemFound, exists := keyWords[word]
+
+	if !exists {
+		//its a variable name or smth
+		return IDENTIFIER
+	}
+	//its an if, else, while, etc
+	return itemFound
 }

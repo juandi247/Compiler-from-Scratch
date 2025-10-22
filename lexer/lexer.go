@@ -147,10 +147,9 @@ func (l *lexer) startLexer() {
 		//we could check here even for unvalid like @ or Runes in go but for now meh
 		default:
 
-			if unicode.IsNumber(l.input[l.curr]) {
+			if unicode.IsNumber(rune(l.input[l.curr])) {
 				l.readNumber()
-
-			} else if unicode.IsLetter(l.input[l.curr]) {
+			} else if unicode.IsLetter(rune(l.input[l.curr])) {
 				l.readIdentifier()
 			}
 		}
