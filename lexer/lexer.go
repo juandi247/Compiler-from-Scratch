@@ -1,6 +1,9 @@
 package lexer
 
-import "bytes"
+import (
+	"bytes"
+	"unicode"
+)
 
 /*
 what do we need for a lexer?
@@ -52,6 +55,18 @@ const (
 	FOR
 )
 
+var keyWords = map[string]item{
+	"if":     IF,
+	"else":   ELSE,
+	"for":    FOR,
+	"while":  WHILE,
+	"fn":     FUNCTION,
+	"return": RETURN,
+	"print":  PRINT,
+	"and":    AND,
+	"or":     OR,
+}
+
 type token struct {
 	tokenType item
 	value     string
@@ -94,7 +109,7 @@ func (l *lexer) startLexer() {
 
 	*/
 	for l.start <= len(l.input) {
-		l.start=l.curr
+		l.start = l.curr
 		switch l.input[l.curr] {
 		case '(':
 			l.saveToken(LEFT_BRACKET, "(")
@@ -110,10 +125,6 @@ func (l *lexer) startLexer() {
 			l.saveToken(SUM, "(")
 		case '-':
 			l.saveToken(SUBSTRACT, "(")
-		case '&':
-			l.saveToken(AND, "(")
-		case '|':
-			l.saveToken(OR, "(")
 		case '%':
 			l.saveToken(MODULO, "(")
 		case '/':
@@ -131,14 +142,17 @@ func (l *lexer) startLexer() {
 			l.readNotEqual()
 
 		case '"':
-			l.ReadString()
-			//okay if it wasnt one of those identifiers, means that we reached a string or a number
-			//we could check here even for unvalid like @ or Runes in go but for now meh
-			default:
+			l.readString()
+		//okay if it wasnt one of those identifiers, means that we reached a string or a number
+		//we could check here even for unvalid like @ or Runes in go but for now meh
+		default:
 
-			if 
-				
-			 
+			if unicode.IsNumber(l.input[l.curr]) {
+				l.readNumber()
+
+			} else if unicode.IsLetter(l.input[l.curr]) {
+				l.readIdentifier()
+			}
 		}
 
 	}
