@@ -1,17 +1,16 @@
 package lexer
 
-import "unicode"
+import (
+	"fmt"
+	"unicode"
+)
 
-//error hanlding for EOF
+// error hanlding for EOF
 func (l *lexer) isAtEnd() bool {
-	if l.curr >= len(l.input) {
-		return true
-	}
-	return false
-
+	return l.curr >= len(l.input)
 }
 
-//Helper functions for characters on the input
+// Helper functions for characters on the input
 func (l *lexer) readEqualOrAsignment() {
 	if l.input[l.curr+1] == '=' {
 		l.saveToken(EQUALS, "==")
@@ -64,10 +63,11 @@ func (l *lexer) readNumber() {
 }
 
 func (l *lexer) readIdentifier() {
+	fmt.Println("entramos a leer un identifier")
 	for unicode.IsLetter(rune(l.input[l.curr])) || unicode.IsNumber(rune(l.input[l.curr])) {
+		fmt.Println("vimos la letra", l.input[l.curr])
 		l.curr++
 	}
-
 	word := string(l.input[l.start:l.curr])
 	itemType := checkKeyWord(word)
 

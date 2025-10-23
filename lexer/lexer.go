@@ -1,7 +1,8 @@
 package lexer
 
 import (
-	"bytes"
+	"fmt"
+	//"time"
 	"unicode"
 )
 
@@ -53,6 +54,7 @@ const (
 	RETURN
 	WHILE
 	FOR
+	VAR
 )
 
 var keyWords = map[string]item{
@@ -65,36 +67,38 @@ var keyWords = map[string]item{
 	"print":  PRINT,
 	"and":    AND,
 	"or":     OR,
+	"var":    VAR,
 }
 
 type token struct {
-	tokenType item
-	value     string
+	TokenType item
+	Value     string
 }
 
 type lexer struct {
 	input  string //this would be all the input from the file or files
 	start  int    //mantain the start of the curr token so we can save it
 	curr   int    //this is to traverse the current token
-	tokens []token
+	Tokens []token
 }
 
-func constructorLexer(input string) *lexer {
+func NewLexer(input string) *lexer {
 	return &lexer{
 		input:  input,
 		start:  0,
 		curr:   0,
-		tokens: []token{}}
+		Tokens: []token{}}
 }
 
 func (l *lexer) saveToken(tokeType item, val string) {
 
-	l.tokens = append(l.tokens, token{
-		tokenType: tokeType, value: val})
+	l.Tokens = append(l.Tokens, token{
+		TokenType: tokeType, Value: val})
 	l.curr++
+	fmt.Printf("Avanzamos a: %v , length: %v", l.curr, len(l.input))
 }
 
-func (l *lexer) startLexer() {
+func (l *lexer) StartLexer() {
 	/*
 				how?
 				Evaluate the curr character. if our curr character is an special character like *,+,(,), etc, we emit the token
@@ -108,27 +112,30 @@ func (l *lexer) startLexer() {
 		if we find a string like "hooh, without an ending ", then we can show an error message after, this error will be taken by thte lexer
 
 	*/
-	for l.start <= len(l.input) {
+	for !l.isAtEnd() {
+		character := l.input[l.curr]
 		l.start = l.curr
-		switch l.input[l.curr] {
+		switch character {
 		case '(':
 			l.saveToken(LEFT_BRACKET, "(")
 		case ')':
-			l.saveToken(RIGHT_BRACKET, "(")
+			l.saveToken(RIGHT_BRACKET, ")")
 		case '{':
-			l.saveToken(LEFT_CURL, "(")
+			l.saveToken(LEFT_CURL, "{")
 		case '}':
-			l.saveToken(RIGHT_CURL, "(")
+			l.saveToken(RIGHT_CURL, "}")
 		case '*':
-			l.saveToken(MULTIPLY, "(")
+			l.saveToken(MULTIPLY, "*")
 		case '+':
-			l.saveToken(SUM, "(")
+			l.saveToken(SUM, "+")
 		case '-':
-			l.saveToken(SUBSTRACT, "(")
+			l.saveToken(SUBSTRACT, "-")
 		case '%':
-			l.saveToken(MODULO, "(")
+			l.saveToken(MODULO, "%")
 		case '/':
-			l.saveToken(DIVIDE, "(")
+			l.saveToken(DIVIDE, "/")
+		case ';':
+			l.saveToken(SEMICOLON, ";")
 
 		//this tokens need to be evaluated into a different function
 		//because it can be assignment, or >= or == or =, so it depends.
@@ -146,14 +153,16 @@ func (l *lexer) startLexer() {
 		//okay if it wasnt one of those identifiers, means that we reached a string or a number
 		//we could check here even for unvalid like @ or Runes in go but for now meh
 		default:
-
-			if unicode.IsNumber(rune(l.input[l.curr])) {
+			if unicode.IsNumber(rune(character)) {
 				l.readNumber()
-			} else if unicode.IsLetter(rune(l.input[l.curr])) {
+			} else if unicode.IsLetter(rune(character)) {
 				l.readIdentifier()
+			} else if character == ' ' || character == '\r' || character == '\n' {
+				l.curr++
 			}
 		}
 
 	}
 
+	fmt.Println("llegamos al final del archivo")
 }
