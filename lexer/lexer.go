@@ -55,6 +55,11 @@ const (
 	WHILE
 	FOR
 	VAR
+
+	//types
+	STRING_TYPE
+	INTEGER_TYPE
+	FLOAT_TYPE
 )
 
 var keyWords = map[string]item{
@@ -68,6 +73,9 @@ var keyWords = map[string]item{
 	"and":    AND,
 	"or":     OR,
 	"var":    VAR,
+	"string": STRING_TYPE,
+	"int":    INTEGER_TYPE,
+	"float":  FLOAT_TYPE,
 }
 
 type token struct {
